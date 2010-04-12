@@ -73,6 +73,16 @@ module Rasp
       elements[1].elements.map{|e| e.elements[1]}
     end
   end
+
+  class String < Treetop::Runtime::SyntaxNode
+    def to_s
+      "#<String:" + text_value + ">"
+    end
+
+    def eval
+      Kernel.eval(text_value)
+    end
+  end
 end
 
 if $0 == __FILE__

@@ -4,7 +4,7 @@ grammar Rasp
   end
 
   rule datum
-    whitespace* (number / symbol / list) whitespace*
+    whitespace* (number / string / symbol / list) whitespace*
   end
 
   rule number
@@ -17,6 +17,10 @@ grammar Rasp
 
   rule list
     '(' datum* ')' <List>
+  end
+
+  rule string
+    '"' ('\\"' / [^"])* '"' <String>
   end
 
   rule special

@@ -34,8 +34,8 @@ module Rasp
         self[name] = Function.new(self, *args, &block)
       end
 
-      def syntax(name, &block)
-        self[name] = Syntax.new(self, &block)
+      def macro(name, *args, &block)
+        self[name] = Macro.new(self, *args, &block)
       end
 
       def eval(source)

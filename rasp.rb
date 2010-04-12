@@ -3,7 +3,7 @@ require 'treetop'
 
 Treetop.load 'rasp.treetop'
 
-%w[runtime scope data/expression data/identifier data/list callable/function callable/syntax].each do |file|
+%w[runtime scope data/expression data/identifier data/list callable/function callable/macro].each do |file|
   require File.join(File.dirname(__FILE__), 'runtime', file)
 end
 

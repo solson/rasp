@@ -1,6 +1,6 @@
 module Rasp
   class Runtime
-    class Syntax < Function
+    class Macro < Function
       def call(scope, cells)
         @body.call(scope, cells)
       end

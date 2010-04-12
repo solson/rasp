@@ -1,0 +1,37 @@
+grammar Rasp
+  rule program
+    datum+ <Program>
+  end
+
+  rule datum
+    whitespace* (number / symbol / list) whitespace*
+  end
+
+  rule number
+    digit+ <Number>
+  end
+
+  rule symbol
+    (special / letter) (special / letter / number)* <Symbol>
+  end
+
+  rule list
+    '(' datum* ')' <List>
+  end
+
+  rule special
+    [!$%&*/:<=>?^_~+-.@]
+  end
+
+  rule letter
+    [a-zA-Z]
+  end
+
+  rule digit
+    [0-9]
+  end
+
+  rule whitespace
+    [\t\n\v\f\r ]
+  end
+end

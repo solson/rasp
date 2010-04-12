@@ -27,6 +27,7 @@ module Rasp
       def []=(name, value)
         @symbols[name.to_s] = value
         value.name = name if value.is_a? Function
+        value
       end
 
       def define(name, *args, &block)

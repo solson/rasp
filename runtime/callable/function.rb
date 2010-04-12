@@ -17,7 +17,7 @@ module Rasp
       end
 
       def name=(name)
-        @name ||= name
+        @name ||= name.to_s
       end
 
       def call(scope, cells)

@@ -1,9 +1,55 @@
 module Rasp
   class Runtime
-    class Macro < Function
-      def call(scope, cells)
-        @body.call(scope, cells)
+    class Macro
+      attr_reader :body, :name
+
+      def initialize(scope, formals = nil, body = nil, &block)
+        if formals.is_a? List
+          @formals = formals.cells.map{|id| id.to_s}
+          if i = @formals.find_index('&')
+            @rest = @formals[i + 1]
+            @formals = @formals[0...i]
+          end
+        end
+
+        @scope = scope
+        @body = body || block
       end
+
+      def name=(name)
+        @name ||= name.to_s
+      end
+
+      def call(scope, params)
+        return @body.call(scope, *params) if primitive?
+        apply(params)
+      end
+
+      def apply(params)
+        closure = Scope.new(@scope)
+        index = 0
+
+        @formals.each do |name|
+          closure[name] = params[index]
+          index += 1
+        end
+
+        closure[@rest] = params[index..-1] if @rest
+        r = nil
+        @body.each do |form|
+          r = Rasp.evaluate(form, closure)
+        end
+        r
+      end
+
+      def primitive?
+        @body.is_a? Proc
+      end
+
+      def to_s
+        "#<Macro:#{@name}>"
+      end
+      alias inspect to_s
     end
   end
 end

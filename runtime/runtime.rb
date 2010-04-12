@@ -11,32 +11,36 @@ module Rasp
 
     def self.define_builtins(scope)
       # This is the Ruby const_get function. Important for Ruby interop.
-      scope.macro('::') do |scope, cells|
-        case cells.count
-        when 0
-          raise "Must give at least one argument to the '::' function."
-        when 1
-          Object.const_get(cells[0].to_s)
-        when 2
-          Rasp.evaluate(cells[0], scope).const_get(cells[1].to_s)
+      scope.defmacro('::') do |scope, context, name|
+        if name
+          context = Rasp.evaluate(context, scope)
         else
-          raise "Too many arguments given to the '::' function."
+          name = context
+          context = Object
         end
+
+        context.const_get(name.to_s)
       end
 
       # This is the Ruby 'send' function. Very important for Ruby interop.
-      scope.macro('.') do |scope, cells|
-        raise "Must give at least one argument to the '.' function." if cells.count < 1
-        Rasp.evaluate(cells[0], scope).__send__(cells[1].cells[0].to_s, *cells[1].cells[1..-1].map{|cell| Rasp.evaluate(cell, scope)})
+      scope.defmacro('.') do |scope, reciever, args|
+        reciever = Rasp.evaluate(reciever, scope)
+        method = args[0].to_s
+        args = args[1..-1].map{|arg| Rasp.evaluate(arg, scope)}
+
+        reciever.__send__(method, *args)
       end
 
-      scope.macro('def') do |scope, cells|
-        name = cells[0]
-        scope[name] = Rasp.evaluate(cells[1], scope)
+      scope.defmacro('def') do |scope, name, value|
+        scope[name] = Rasp.evaluate(value, scope)
       end
 
-      scope.macro('fn') do |scope, cells|
-        Function.new(scope, cells[0], cells[1..-1])
+      scope.defmacro('fn') do |scope, args, *forms|
+        Function.new(scope, args, forms)
+      end
+
+      scope.defmacro('macro') do |scope, args, *forms|
+        Macro.new(scope, args, forms)
       end
     end
   end

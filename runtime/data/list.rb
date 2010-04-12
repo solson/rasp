@@ -11,6 +11,10 @@ module Rasp
       def eval(scope)
         Rasp.evaluate(cells.first, scope).call(scope, cells[1..-1])
       end
+
+      def [](i)
+        @cells[i]
+      end
     end
   end
 end

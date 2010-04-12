@@ -30,11 +30,11 @@ module Rasp
         value
       end
 
-      def define(name, *args, &block)
+      def defn(name, *args, &block)
         self[name] = Function.new(self, *args, &block)
       end
 
-      def macro(name, *args, &block)
+      def defmacro(name, *args, &block)
         self[name] = Macro.new(self, *args, &block)
       end
 

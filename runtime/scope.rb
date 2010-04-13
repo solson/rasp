@@ -21,6 +21,8 @@ module Rasp
           value = @parent[name]
         end
 
+#        raise "Unable to resolve symbol '#{name}'." unless value
+
         value
       end
 

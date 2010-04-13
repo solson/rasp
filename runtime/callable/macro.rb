@@ -1,7 +1,8 @@
 module Rasp
   class Runtime
     class Macro < Function
-      def call(scope, params)
+      def call(params)
+        apply(params)
       end
 
       def to_s

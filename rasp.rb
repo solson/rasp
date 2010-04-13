@@ -14,12 +14,23 @@ module Rasp
   end
 
   def self.evaluate(expression, scope)
-    p expression
+#    p expression
 
     case expression
     when Array
       return [] if expression.size == 0
-      Rasp.evaluate(expression.first, scope).call(scope, expression[1..-1])
+
+      callable = Rasp.evaluate(expression.first, scope)
+      raise "Tried to call '#{callable}', which has no 'call' method." unless callable.respond_to? :call
+
+      case callable
+      when Runtime::Macro
+        self.evaluate(callable.call(expression[1..-1]), scope)
+      when Runtime::Function
+        callable.call(scope, expression[1..-1])
+      else
+        callable.call(expression[1..-1])
+      end
     when Runtime::Expression
       expression.eval(scope)
     else

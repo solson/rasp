@@ -8,7 +8,7 @@ grammar Rasp
   end
 
   rule number
-    digit+ <Number>
+    '-'? digit+ <Number>
   end
 
   rule symbol

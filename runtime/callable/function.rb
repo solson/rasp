@@ -4,7 +4,7 @@ module Rasp
       attr_reader :body, :name
 
       def initialize(scope, formals = nil, body = nil, &block)
-        if formals.is_a? List
+        if formals.is_a? Array
           @formals = formals.map{|id| id.to_s}
           if i = @formals.find_index('&')
             @rest = @formals[i + 1]
@@ -38,10 +38,6 @@ module Rasp
         end
 
         closure[@rest] = params[index..-1] if @rest
-
-        closure.defmacro("evaluate") do |scope, form|
-          Rasp.evaluate(form, scope)
-        end
 
         r = nil
         @body.each do |form|

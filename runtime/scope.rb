@@ -34,6 +34,10 @@ module Rasp
         self[name] = Function.new(self, *args, &block)
       end
 
+      def defspecial(name, &block)
+        self[name] = Special.new(self, &block)
+      end
+
       def defmacro(name, *args, &block)
         self[name] = Macro.new(self, *args, &block)
       end

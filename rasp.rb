@@ -3,7 +3,7 @@ require 'treetop'
 
 Treetop.load 'rasp.treetop'
 
-%w[runtime scope data/expression data/identifier data/list callable/macro callable/function].each do |file|
+%w[runtime scope data/expression data/identifier callable/function callable/special callable/macro].each do |file|
   require File.join(File.dirname(__FILE__), 'runtime', file)
 end
 
@@ -14,7 +14,13 @@ module Rasp
   end
 
   def self.evaluate(expression, scope)
-    if expression.is_a? Runtime::Expression
+    p expression
+
+    case expression
+    when Array
+      return [] if expression.size == 0
+      Rasp.evaluate(expression.first, scope).call(scope, expression[1..-1])
+    when Runtime::Expression
       expression.eval(scope)
     else
       expression
@@ -22,10 +28,6 @@ module Rasp
   end
 
   class Program < Treetop::Runtime::SyntaxNode
-    def to_s
-      "#<Program:" + text_value + ">"
-    end
-
     def eval(scope)
       convert!
       @data.map{|part| Rasp.evaluate(part, scope)}.last
@@ -41,32 +43,20 @@ module Rasp
   end
 
   class Number < Treetop::Runtime::SyntaxNode
-    def to_s
-      "#<Number:" + text_value + ">"
-    end
-
     def eval
       text_value.to_i
     end
   end
 
   class Symbol < Treetop::Runtime::SyntaxNode
-    def to_s
-      "#<Symbol:" + text_value + ">"
-    end
-
     def eval
       Runtime::Identifier.new(text_value)
     end
   end
 
   class List < Treetop::Runtime::SyntaxNode
-    def to_s
-      "#<List:" + text_value + ">"
-    end
-
     def eval
-      Runtime::List.new(cells.map{|c| c.eval})
+      cells.map{|c| c.eval}
     end
 
     def cells
@@ -75,10 +65,6 @@ module Rasp
   end
 
   class String < Treetop::Runtime::SyntaxNode
-    def to_s
-      "#<String:" + text_value + ">"
-    end
-
     def eval
       Kernel.eval(text_value)
     end

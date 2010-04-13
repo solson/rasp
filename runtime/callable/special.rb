@@ -1,11 +1,12 @@
 module Rasp
   class Runtime
-    class Macro < Function
+    class Special < Function
       def call(scope, params)
+        @body.call(scope, params)
       end
 
       def to_s
-        "#<Macro:#{@name}>"
+        "#<Special:#{@name}>"
       end
       alias inspect to_s
     end

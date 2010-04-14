@@ -39,8 +39,8 @@ module Rasp
         params[0]
       end
 
-      scope.defn('list') do |*params|
-        params
+      scope.defspecial('eval') do |scope, params|
+        Rasp.evaluate(Rasp.evaluate(params[0], scope), scope)
       end
 
       scope.defspecial('if') do |scope, params|
@@ -63,37 +63,50 @@ module Rasp
         Macro.new(scope, params[0], params[1..-1])
       end
 
-#      scope.defmacro('apply') do |func, *args, argSeq|
-#        [func, *args, *argSeq]
-#      end
-
-#        (def apply (fn (f & args)
-#          (if (. (. args (last)) (is_a? (:: Enumerable))))
-#              (. f (apply (. (. args (last)) (+ (. args (slice (range 0 -1)))))))
-#              (. f (apply args))))
-
       scope.eval('
-        (def range (macro (min max)
-          (list (quote .) (quote (:: Range)) (list (quote new) min max))))
+        (def list (fn (& args) args))
 
-        (def isa? (fn (obj class)
-          (. obj (is_a? class))))
-
-        (def first (fn (ary) (. ary (first))))
-
-        (def last (fn (ary) (. ary (last))))
-
-        (def pop (fn (ary) (. ary (pop))))
-
-        (def concat (fn (ary1 ary2) (. ary1 (concat ary2))))
-
-        (def apply (macro (f & args)
-          (if (isa? (last args) (:: Enumerable))
-              (concat args (. (pop args) (to_a))))
-          (. (list f) (+ args))))
+        (def apply (fn (f & args)
+          (. args (concat (. (. args (pop)) (to_a))))
+          (eval (. (list f) (+ args)))))
 
         (def defn (macro (name args & forms)
-          (list (quote def) name (list (quote apply) (quote fn) args forms))))
+          (list (quote def) name (apply fn args forms))))
+
+        (def defmacro (macro (name args & forms)
+          (list (quote def) name (apply macro args forms))))
+
+        (defmacro comment (& forms))
+
+        (defn isa? (obj class)
+          (. obj (is_a? class)))
+
+        (defn method (obj name)
+          (. obj (method name)))
+
+        (defn new (class & args)
+          (apply (method class "new") args))
+
+        (defn range (min max)
+          (new (:: Range) min max))
+
+        (defn first (ary)
+          (. ary (first)))
+
+        (defn last (ary)
+          (. ary (last)))
+
+        (defn pop (ary)
+          (. ary (pop)))
+
+        (defn push (ary)
+          (. ary (push)))
+
+        (defn aconcat (ary1 ary2)
+          (. ary1 (concat ary2)))
+
+        (defn concat (& args)
+          (. args (reduce () "+")))
 
         (defn + (& args)
           (. args (reduce 0 "+")))

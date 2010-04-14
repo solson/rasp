@@ -20,10 +20,7 @@ module Rasp
         @name ||= name.to_s
       end
 
-      def call(scope, params)
-        params = params.map do |cell|
-          Rasp.evaluate(cell, scope)
-        end
+      def call(params)
         apply(params)
       end
 

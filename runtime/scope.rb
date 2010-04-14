@@ -15,15 +15,15 @@ module Rasp
       end
 
       def [](name)
-        value = @symbols[name.to_s]
+        name = name.to_s
 
-        if !value && @parent.is_a?(Scope)
-          value = @parent[name]
+        if @symbols.include?(name)
+          @symbols[name]
+        elsif @parent.is_a?(Scope)
+          @parent[name]
+        else
+          raise "Unable to resolve symbol '#{name}'."
         end
-
-#        raise "Unable to resolve symbol '#{name}'." unless value
-
-        value
       end
 
       def []=(name, value)
@@ -46,6 +46,7 @@ module Rasp
 
       def eval(source)
         source = Rasp.parse(source)
+        raise "The parser couldn't parse it." unless source
         source.eval(self)
       end
     end

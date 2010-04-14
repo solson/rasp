@@ -23,13 +23,17 @@ module Rasp
       callable = Rasp.evaluate(expression.first, scope)
       raise "Tried to call '#{callable}', which has no 'call' method." unless callable.respond_to? :call
 
+      args = expression[1..-1]
+
       case callable
       when Runtime::Macro
-        self.evaluate(callable.call(expression[1..-1]), scope)
+        self.evaluate(callable.call(args), scope)
+      when Runtime::Special
+        callable.call(scope, args)
       when Runtime::Function
-        callable.call(scope, expression[1..-1])
+        callable.call(args.map{|arg| Rasp.evaluate(arg, scope)})
       else
-        callable.call(expression[1..-1])
+        callable.call(*args)
       end
     when Runtime::Expression
       expression.eval(scope)

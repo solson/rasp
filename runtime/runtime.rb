@@ -76,6 +76,11 @@ module Rasp
         (def defmacro (macro (name args & forms)
           (list (quote def) name (apply macro args forms))))
 
+        (defmacro import (class)
+          (list (quote def) class (list (quote ::) class)))
+
+        (import Range)
+
         (defmacro comment (& forms))
 
         (defn isa? (obj class)
@@ -88,7 +93,7 @@ module Rasp
           (apply (method class "new") args))
 
         (defn range (min max)
-          (new (:: Range) min max))
+          (new Range min max))
 
         (defn first (ary)
           (. ary (first)))

@@ -126,16 +126,17 @@ module Rasp
         (def defmacro (macro (name args & forms)
           (list (quote def) name (apply macro args forms))))
 
-        (defn map (ary fn)
-          (. ary (map & fn)))
+        (defn map (f ary)
+          (. ary (map & f)))
 
         (defn concat (& args)
           (. args (reduce () "+")))
 
         (defmacro import (& classes)
           (concat (list (quote do))
-                  (map classes (fn (class)
-                    (list (quote def) class (list (quote ::) class))))))
+                  (map (fn (class)
+                         (list (quote def) class (list (quote ::) class)))
+                       classes)))
 
         (import Kernel Object Module Class Range String Array)
 
@@ -164,7 +165,7 @@ module Rasp
           (print "\n"))
 
         (defn pr (& args)
-          (. (:: Kernel) (print (join (map args (fn (arg) (. arg (inspect)))) " "))))
+          (. (:: Kernel) (print (join (map (fn (arg) (. arg (inspect))) args) " "))))
 
         (defn prn (& args)
           (apply pr args)

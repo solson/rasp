@@ -138,6 +138,9 @@ module Rasp
         (defn first (ary)
           (. ary (first)))
 
+        (defn rest (ary)
+          (. ary (slice (range 1 -1))))
+
         (defn last (ary)
           (. ary (last)))
 
@@ -146,6 +149,19 @@ module Rasp
 
         (defn push (ary)
           (. ary (push)))
+
+        (defn each (ary fn)
+          (. ary (each & fn)))
+
+        (defn join (ary sep)
+          (. ary (join sep)))
+
+        (defn print (& args)
+          (. (:: Kernel) (print (join args " "))))
+
+        (defn println (& args)
+          (apply print args)
+          (print "\n"))
 
         (defn aconcat (ary1 ary2)
           (. ary1 (concat ary2)))

@@ -59,6 +59,38 @@ module Rasp
         end
       end
 
+      scope.defspecial('or') do |scope, params|
+        val = nil
+
+        # return nil if there are no params
+        if params.count > 0
+          params.each do |param|
+            if val = Rasp.evaluate(param, scope)
+              # return if it evalutes to logical true
+              break
+            end
+          end
+        end
+
+        val
+      end
+
+      scope.defspecial('and') do |scope, params|
+        val = true
+
+        # return true if there are no params
+        if params.count > 0
+          params.each do |param|
+            if not val = Rasp.evaluate(param, scope)
+              # return if it evalutes to logical false
+              break
+            end
+          end
+        end
+
+        val
+      end
+
       scope.defspecial('def') do |scope, params|
         scope[params[0]] = Rasp.evaluate(params[1], scope)
       end

@@ -48,7 +48,8 @@ module Rasp
       end
 
       def to_proc
-        lambda{|*args| self.call(args) }
+        func = self
+        lambda{|*args| func.call(args) }
       end
 
       def to_s

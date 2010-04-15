@@ -51,6 +51,16 @@ module Rasp
         Rasp.evaluate(Rasp.evaluate(params[0], scope), scope)
       end
 
+      scope.defspecial('do') do |scope, params|
+        val = nil
+
+        params.each do |param|
+          val = Rasp.evaluate(param, scope)
+        end
+
+        val
+      end
+
       scope.defspecial('if') do |scope, params|
         if(Rasp.evaluate(params[0], scope))
           Rasp.evaluate(params[1], scope)
@@ -116,10 +126,18 @@ module Rasp
         (def defmacro (macro (name args & forms)
           (list (quote def) name (apply macro args forms))))
 
-        (defmacro import (class)
-          (list (quote def) class (list (quote ::) class)))
+        (defn map (ary fn)
+          (. ary (map & fn)))
 
-        (import Range)
+        (defn concat (& args)
+          (. args (reduce () "+")))
+
+        (defmacro import (& classes)
+          (concat (list (quote do))
+                  (map classes (fn (class)
+                    (list (quote def) class (list (quote ::) class))))))
+
+        (import Kernel Object Module Class Range String Array)
 
         (defmacro comment (& forms))
 
@@ -135,6 +153,29 @@ module Rasp
         (defn range (min max)
           (new Range min max))
 
+        (defn join (ary sep)
+          (. ary (join sep)))
+
+        (defn print (& args)
+          (. (:: Kernel) (print (join args " "))))
+
+        (defn println (& args)
+          (apply print args)
+          (print "\n"))
+
+        (defn pr (& args)
+          (. (:: Kernel) (print (join (map args (fn (arg) (. arg (inspect)))) " "))))
+
+        (defn prn (& args)
+          (apply pr args)
+          (print "\n"))
+
+        (defn each (ary fn)
+          (. ary (each & fn)))
+
+        (defn push (ary)
+          (. ary (push)))
+
         (defn first (ary)
           (. ary (first)))
 
@@ -147,27 +188,8 @@ module Rasp
         (defn pop (ary)
           (. ary (pop)))
 
-        (defn push (ary)
-          (. ary (push)))
-
-        (defn each (ary fn)
-          (. ary (each & fn)))
-
-        (defn join (ary sep)
-          (. ary (join sep)))
-
-        (defn print (& args)
-          (. (:: Kernel) (print (join args " "))))
-
-        (defn println (& args)
-          (apply print args)
-          (print "\n"))
-
         (defn aconcat (ary1 ary2)
           (. ary1 (concat ary2)))
-
-        (defn concat (& args)
-          (. args (reduce () "+")))
 
         (defn + (& args)
           (. args (reduce 0 "+")))

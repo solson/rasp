@@ -47,6 +47,10 @@ module Rasp
         @body.is_a? Proc
       end
 
+      def to_proc
+        lambda{|*args| self.call(args) }
+      end
+
       def to_s
         "#<Function:#{@name}>"
       end

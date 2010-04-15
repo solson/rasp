@@ -30,9 +30,17 @@ module Rasp
       scope.defspecial('.') do |scope, params|
         reciever = Rasp.evaluate(params[0], scope)
         method = params[1][0].to_s
-        args = params[1][1..-1].map{|arg| Rasp.evaluate(arg, scope)}
+        args = params[1][1..-1]
+        block = nil
 
-        reciever.__send__(method, *args)
+        if i = args.find_index{|arg| arg.to_s == '&' }
+          block = Rasp.evaluate(args[i + 1], scope)
+          args = args[0...i]
+        end
+
+        args.map!{|arg| Rasp.evaluate(arg, scope)}
+
+        reciever.__send__(method, *args, &block)
       end
 
       scope.defspecial('quote') do |scope, params|

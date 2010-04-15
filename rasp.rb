@@ -14,10 +14,9 @@ module Rasp
   end
 
   def self.evaluate(expression, scope)
-#    p expression
-
     case expression
     when Array
+      p expression if $DEBUG
       return [] if expression.size == 0
 
       callable = Rasp.evaluate(expression.first, scope)
@@ -27,7 +26,9 @@ module Rasp
 
       case callable
       when Runtime::Macro
-        self.evaluate(callable.call(args), scope)
+        expansion = callable.call(args)
+        p "EXPANSION: #{expansion}" if $DEBUG
+        self.evaluate(expansion, scope)
       when Runtime::Special
         callable.call(scope, args)
       when Runtime::Function

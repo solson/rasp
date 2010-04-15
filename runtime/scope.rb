@@ -18,7 +18,7 @@ module Rasp
         name = name.to_s
 
         if @symbols.include?(name)
-          @symbols[name]
+          @symbols[name].tap{|x| puts "#{name}: #{x.inspect}" if $DEBUG}
         elsif @parent.is_a?(Scope)
           @parent[name]
         else

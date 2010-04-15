@@ -52,7 +52,7 @@ module Rasp
       end
 
       def to_s
-        "#<Function:#{@name}>"
+        @name ? "#<Function:#{@name}>" : "#<Function>"
       end
       alias inspect to_s
     end

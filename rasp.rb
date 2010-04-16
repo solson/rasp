@@ -80,6 +80,16 @@ module Rasp
     end
   end
 
+  class Vector < Treetop::Runtime::SyntaxNode
+    def eval
+      [Runtime::Identifier.new("list"), *cells.map{|c| c.eval}]
+    end
+
+    def cells
+      elements[1].elements.map{|e| e.elements[1]}
+    end
+  end
+
   class String < Treetop::Runtime::SyntaxNode
     def eval
       Kernel.eval(text_value)

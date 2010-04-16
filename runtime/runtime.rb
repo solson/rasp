@@ -113,29 +113,29 @@ module Rasp
         Macro.new(scope, params[0], params[1..-1])
       end
 
-      scope.eval('
+      scope.eval <<-END
         (def list (fn (& args) args))
 
         (def apply (fn (f & args)
           (. args (concat (. (. args (pop)) (to_a))))
-          (eval (. (list f) (+ args)))))
+          (eval (. [f] (+ args)))))
 
         (def defn (macro (name args & forms)
-          (list (quote def) name (apply fn args forms))))
+          ['def name (apply fn args forms)]))
 
         (def defmacro (macro (name args & forms)
-          (list (quote def) name (apply macro args forms))))
+          ['def name (apply macro args forms)]))
 
         (defn map (f ary)
           (. ary (map & f)))
 
         (defn concat (& args)
-          (. args (reduce () "+")))
+          (. args (reduce [] "+")))
 
         (defmacro import (& classes)
-          (concat (list (quote do))
+          (concat '(do)
                   (map (fn (class)
-                         (list (quote def) class (list (quote ::) class)))
+                         ['def class [':: class]])
                        classes)))
 
         (import Kernel Object Module Class Range String Array)
@@ -197,7 +197,7 @@ module Rasp
 
         (defn * (& args)
           (. args (reduce 1 "*")))
-      ')
+      END
     end
   end
 end

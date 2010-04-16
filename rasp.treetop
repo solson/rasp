@@ -1,10 +1,14 @@
 grammar Rasp
   rule program
-    datum+ <Program>
+    cell* <Program>
   end
 
-  rule datum
-    whitespace* (number / string / symbol / list / vector) whitespace*
+  rule cell
+    whitespace* (quoted_cell / number / string / symbol / list / vector) whitespace* <Cell>
+  end
+
+  rule quoted_cell
+    "'" cell <QuotedCell>
   end
 
   rule number
@@ -16,11 +20,11 @@ grammar Rasp
   end
 
   rule list
-    '(' datum* ')' <List>
+    '(' cell* ')' <List>
   end
 
   rule vector
-    '[' datum* ']' <Vector>
+    '[' cell* ']' <Vector>
   end
 
   rule string

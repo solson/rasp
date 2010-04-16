@@ -54,7 +54,19 @@ module Rasp
     end
 
     def cells
-      elements.map{|e| e.elements[1]}
+      elements
+    end
+  end
+
+  class Cell < Treetop::Runtime::SyntaxNode
+    def eval
+      elements[1].eval
+    end
+  end
+
+  class QuotedCell < Treetop::Runtime::SyntaxNode
+    def eval
+      [Runtime::Identifier.new("quote"), elements[1].eval]
     end
   end
 
@@ -76,7 +88,7 @@ module Rasp
     end
 
     def cells
-      elements[1].elements.map{|e| e.elements[1]}
+      elements[1].elements
     end
   end
 
@@ -86,7 +98,7 @@ module Rasp
     end
 
     def cells
-      elements[1].elements.map{|e| e.elements[1]}
+      elements[1].elements
     end
   end
 

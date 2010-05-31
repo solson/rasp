@@ -4,6 +4,7 @@ module Rasp
       attr_reader :body, :name
 
       def initialize(scope, formals = nil, body = nil, &block)
+        p ["WTF ---------------------------------------------------", scope] if scope != scope.runtime.user_scope && $DEBUG
         if formals.is_a? Array
           @formals = formals.map{|id| id.to_s}
           if i = @formals.find_index('&')
@@ -25,6 +26,7 @@ module Rasp
       end
 
       def apply(params)
+        puts "Apply on #@name" if $DEBUG
         return @body.call(*params) if primitive?
         closure = Scope.new(@scope)
         index = 0

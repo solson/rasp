@@ -1,10 +1,12 @@
 module Rasp
   class Runtime
-    attr_accessor :top_level, :user_scope
+    attr_accessor :top_level, :user_scope, :stack
 
     def initialize
       @top_level = Scope.new(self)
       @user_scope = Scope.new(@top_level)
+
+      @stack = []
 
       Runtime.define_builtins(@top_level)
     end
@@ -47,6 +49,12 @@ module Rasp
         params[0]
       end
 
+      scope.defspecial('debug') do |scope, params|
+        print "DEBUG: " if $DEBUG
+        require 'pp'
+        pp [scope, params] if $DEBUG
+      end
+
       scope.defspecial('eval') do |scope, params|
         Rasp.evaluate(Rasp.evaluate(params[0], scope), scope)
       end
@@ -66,6 +74,17 @@ module Rasp
           Rasp.evaluate(params[1], scope)
         else
           Rasp.evaluate(params[2], scope) if params[2]
+        end
+      end
+
+      scope.defspecial('while') do |scope, params|
+        condition = params[0]
+        body = params[1..-1]
+
+        while(Rasp.evaluate(condition, scope))
+          body.each do |form|
+            Rasp.evaluate(form, scope)
+          end
         end
       end
 
@@ -109,19 +128,31 @@ module Rasp
         Function.new(scope, params[0], params[1..-1])
       end
 
+      scope.defspecial('defn') do |scope, params|
+        scope[params[0]] = Function.new(scope, params[1], params[2..-1])
+      end
+
       scope.defspecial('macro') do |scope, params|
         Macro.new(scope, params[0], params[1..-1])
       end
 
+      scope.defspecial('apply') do |scope, params|
+        f = Rasp.evaluate(params[0], scope)
+        args = params[1..-1].map{|param| Rasp.evaluate(param, scope)}
+        args += args.pop.to_a
+
+        Rasp.evaluate([f, *args], scope)
+      end
+
+        # (def apply (fn (f & args)
+        #   (. args (concat (. (. args (pop)) (to_a))))
+        #   (eval (. [f] (+ args)))))
+
+        # (def defn (macro (name args & forms)
+        #   ['def name (apply fn args forms)]))
+
       scope.eval <<-END
         (def list (fn (& args) args))
-
-        (def apply (fn (f & args)
-          (. args (concat (. (. args (pop)) (to_a))))
-          (eval (. [f] (+ args)))))
-
-        (def defn (macro (name args & forms)
-          ['def name (apply fn args forms)]))
 
         (def defmacro (macro (name args & forms)
           ['def name (apply macro args forms)]))
@@ -132,6 +163,9 @@ module Rasp
         (defn concat (& args)
           (. args (reduce [] "+")))
 
+        (defn reduce (fn coll)
+          (. coll (reduce & fn)))
+
         (defmacro import (& classes)
           (concat '(do)
                   (map (fn (class)
@@ -139,6 +173,8 @@ module Rasp
                        classes)))
 
         (import Kernel Object Module Class Range String Array)
+
+        (defn require (name) (. Kernel (require name)))
 
         (defmacro comment (& forms))
 
@@ -153,6 +189,21 @@ module Rasp
 
         (defn range (min max)
           (new Range min max))
+
+        (defmacro loop (& body)
+          ['. 'Kernel ['loop '& (concat ['fn ()] body)]])
+
+        (defn str (& args)
+          (join args ""))
+
+        (defn not (x)
+          (. x (!@)))
+
+        (defmacro when (cond & body)
+          ['if cond (concat ['do] body) nil])
+
+        (defmacro when-not (cond & body)
+          ['if cond nil (concat ['do] body)])
 
         (defn join (ary sep)
           (. ary (join sep)))

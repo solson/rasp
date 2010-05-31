@@ -20,14 +20,16 @@ module Rasp
       return [] if expression.size == 0
 
       callable = Rasp.evaluate(expression.first, scope)
-      raise "Tried to call '#{callable}', which has no 'call' method." unless callable.respond_to? :call
+      raise "Tried to call '#{callable}', but it has no 'call' method." unless callable.respond_to? :call
 
       args = expression[1..-1]
+
+#      scope.runtime.stack << callable.to_s
 
       case callable
       when Runtime::Macro
         expansion = callable.call(args)
-        p "EXPANSION: #{expansion}" if $DEBUG
+        puts "EXPANSION: #{expansion}" if $DEBUG
         self.evaluate(expansion, scope)
       when Runtime::Special
         callable.call(scope, args)
@@ -36,6 +38,8 @@ module Rasp
       else
         callable.call(*args)
       end
+
+#      scope.runtime.stack.pop
     when Runtime::Expression
       expression.eval(scope)
     else
@@ -46,6 +50,7 @@ module Rasp
   class Program < Treetop::Runtime::SyntaxNode
     def eval(scope)
       convert!
+      p @data if $DEBUG
       @data.map{|part| Rasp.evaluate(part, scope)}.last
     end
 

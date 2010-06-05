@@ -117,7 +117,5 @@ end
 if $0 == __FILE__
   runtime = Rasp::Runtime.new
   tree = Rasp.parse(ARGF.read)
-  p tree
-  value = runtime.user_scope.eval(tree)
-  p value
+  value = tree.eval(runtime.user_scope)
 end

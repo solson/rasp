@@ -28,11 +28,30 @@ module Rasp
         context.const_get(name.to_s)
       end
 
-      # This is the Ruby 'send' function. Very important for Ruby interop.
+      # This is the Ruby 'send' function. Very important for Ruby
+      # interop.
+      #
+      # (. obj (meth arg1 arg2))
+      # (. obj meth arg1 arg2)
+      # (.meth obj arg1 arg2)
+      #
+      # The last one will be translated to (. obj meth arg1 arg2)
+      #
       scope.defspecial('.') do |scope, params|
         reciever = Rasp.evaluate(params[0], scope)
-        method = params[1][0].to_s
-        args = params[1][1..-1]
+
+        case params[1]
+        when Runtime::Identifier
+          method = params[1].name
+          args = params[2..-1]
+        when Array
+          raise "Method call expresison is badly formed, expecting (. object (method ...))" if params[1].length == 0
+          raise "Method name must be an identifier" unless params[1][0].is_a?(Runtime::Identifier)
+
+          method = params[1][0].name
+          args = params[1][1..-1]
+        end
+        
         block = nil
 
         if i = args.find_index{|arg| arg.to_s == '&' }

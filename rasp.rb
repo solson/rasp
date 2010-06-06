@@ -19,6 +19,12 @@ module Rasp
       p expression if $DEBUG
       return [] if expression.size == 0
 
+      if expression.first.is_a?(Runtime::Identifier) && expression.first.name[0,1] == "." && expression.first.name.length > 1
+        raise "Method call expression badly formed, expecting (.method object ...)" if expression.length < 2
+        expression = [DOT, expression[1], Rasp.sym(expression[0].name[1..-1]), *expression[2..-1]]
+        puts "Dot shift: #{expression.inspect}" if $DEBUG
+      end
+
       callable = Rasp.evaluate(expression.first, scope)
       raise "Tried to call '#{callable}', but it has no 'call' method." unless callable.respond_to? :call
 
@@ -58,7 +64,8 @@ module Rasp
   def self.list(*args)
     [LIST, *args]
   end
-  
+
+  DOT              = self.sym(".")
   LIST             = self.sym("list")
   CONCAT           = self.sym("concat")
   QUOTE            = self.sym("quote")

@@ -106,27 +106,22 @@ module Rasp
       elsif is_unquote_splicing?(form)
         raise "Splicing unquote (~@) was found outside a list."
       elsif form.is_a? Array
-        [CONCAT] + expand_list(form)
-        # *form.map{|f| convert(f)}
+        [CONCAT, *expand_list(form)]
       else
         form
       end
     end
 
     def expand_list(list)
-      ret = []
-
-      list.each do |form|
+      list.map do |form|
         if is_unquote?(form)
-          ret << Rasp.list(form[1])
+          Rasp.list(form[1])
         elsif is_unquote_splicing?(form)
-          ret << form[1]
+          form[1]
         else
-          ret << Rasp.list(syntax_quote(form)) 
+          Rasp.list(syntax_quote(form)) 
         end
       end
-
-      ret
     end
 
     def is_unquote?(form)

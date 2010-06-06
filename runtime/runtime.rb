@@ -11,6 +11,10 @@ module Rasp
       Runtime.define_builtins(@top_level)
     end
 
+    def eval(code)
+      @user_scope.eval(code)
+    end
+
     def self.define_builtins(scope)
       scope['true'] = true
       scope['false'] = false

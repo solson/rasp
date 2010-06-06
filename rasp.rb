@@ -89,7 +89,64 @@ module Rasp
 
   class QuotedCell < Treetop::Runtime::SyntaxNode
     def eval
-      [Runtime::Identifier.new("quote"), elements[1].eval]
+      Rasp.quote(elements[1].eval)
+    end
+  end
+
+  class BackquotedCell < Treetop::Runtime::SyntaxNode
+    def eval
+      syntax_quote(elements[1].eval)
+    end
+
+    def syntax_quote(form)      
+      if form.is_a? Runtime::Identifier
+        Rasp.quote(form)
+      elsif is_unquote?(form)
+        form[1]
+      elsif is_unquote_splicing?(form)
+        raise "Splicing unquote (~@) was found outside a list."
+      elsif form.is_a? Array
+        [CONCAT] + expand_list(form)
+        # *form.map{|f| convert(f)}
+      else
+        form
+      end
+    end
+
+    def expand_list(list)
+      ret = []
+
+      list.each do |form|
+        if is_unquote?(form)
+          ret << Rasp.list(form[1])
+        elsif is_unquote_splicing?(form)
+          ret << form[1]
+        else
+          ret << Rasp.list(syntax_quote(form)) 
+        end
+      end
+
+      ret
+    end
+
+    def is_unquote?(form)
+      form.is_a?(Array) && form.first == UNQUOTE
+    end
+
+    def is_unquote_splicing?(form)
+      form.is_a?(Array) && form.first == UNQUOTE_SPLICING
+    end
+  end
+  
+  class UnquotedCell < Treetop::Runtime::SyntaxNode
+    def eval
+      [UNQUOTE, elements[1].eval]
+    end
+  end
+  
+  class UnquotedSplicingCell < Treetop::Runtime::SyntaxNode
+    def eval
+      [UNQUOTE_SPLICING, elements[1].eval]
     end
   end
 

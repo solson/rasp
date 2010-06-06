@@ -151,6 +151,15 @@ module Rasp
         # (def defn (macro (name args & forms)
         #   ['def name (apply fn args forms)]))
 
+        # (defmacro import (& classes)
+        #   (concat '(do)
+        #           (map (fn (class)
+        #                  ['def class [':: class]])
+        #                classes)))
+
+        # (defmacro loop (& body)
+        #   ['. 'Kernel ['loop '& (concat ['fn ()] body)]])
+      
       scope.eval <<-END
         (def list (fn (& args) args))
 
@@ -167,10 +176,10 @@ module Rasp
           (. coll (reduce & fn)))
 
         (defmacro import (& classes)
-          (concat '(do)
-                  (map (fn (class)
-                         ['def class [':: class]])
-                       classes)))
+          (def forms (map (fn (class)
+                            `(def ~class (:: ~class)))
+                          classes))
+          `(do ~@forms))
 
         (import Kernel Object Module Class Range String Array)
 
@@ -191,7 +200,7 @@ module Rasp
           (new Range min max))
 
         (defmacro loop (& body)
-          ['. 'Kernel ['loop '& (concat ['fn ()] body)]])
+          `(. Kernel (loop & (fn () ~@body))))
 
         (defn str (& args)
           (join args ""))

@@ -4,11 +4,27 @@ grammar Rasp
   end
 
   rule cell
-    whitespace* (quoted_cell / number / string / symbol / list / vector) whitespace* <Cell>
+    whitespace* (quotes / number / string / symbol / list / vector) whitespace* <Cell>
+  end
+
+  rule quotes
+    quoted_cell / backquoted_cell / unquoted_splicing_cell / unquoted_cell
   end
 
   rule quoted_cell
     "'" cell <QuotedCell>
+  end
+
+  rule backquoted_cell
+    "`" cell <BackquotedCell>
+  end
+
+  rule unquoted_cell
+    "~" cell <UnquotedCell>
+  end
+
+  rule unquoted_splicing_cell
+    "~@" cell <UnquotedSplicingCell>
   end
 
   rule number

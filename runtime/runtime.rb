@@ -49,7 +49,7 @@ module Rasp
           method = params[1].name
           args = params[2..-1]
         when Array
-          raise "Method call expresison is badly formed, expecting (. object (method ...))" if params[1].length == 0
+          raise "Method call expression is badly formed, expecting (. object (method ...))" if params[1].length == 0
           raise "Method name must be an identifier" unless params[1][0].is_a?(Runtime::Identifier)
 
           method = params[1][0].name

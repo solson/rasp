@@ -44,6 +44,6 @@ grammar Rasp
   end
 
   rule whitespace
-    [\t\n\v\f\r ]
+    [,\t\n\v\f\r ] # commas are whitespace, like in Clojure
   end
 end

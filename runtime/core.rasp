@@ -1,7 +1,7 @@
 (def list (fn (& args) args))
 
 (def defmacro (macro (name args & forms)
-		     ['def name (apply macro args forms)]))
+		     `(def ~name ~(apply macro args forms))))
 
 (defn map (f ary)
   (. ary (map & f)))
@@ -13,10 +13,9 @@
   (. coll (reduce & fn)))
 
 (defmacro import (& classes)
-  (def forms (map (fn (class)
-		      `(def ~class (:: ~class)))
-		  classes))
-  `(do ~@forms))
+  `(do ~@(map (fn (class)
+		  `(def ~class (:: ~class)))
+	      classes)))
 
 (import Kernel Object Module Class Range String Array)
 
@@ -45,24 +44,24 @@
 (defn not (x)
   (. x (!@)))
 
-(defmacro when (cond & body)
-  ['if cond (concat ['do] body) nil])
+(defmacro when (condition & body)
+  `(if ~condition (do ~@body) nil))
 
-(defmacro when-not (cond & body)
-  ['if cond nil (concat ['do] body)])
+(defmacro when-not (condition & body)
+  `(if ~condition nil (do ~@body)))
 
 (defn join (ary sep)
   (. ary (join sep)))
 
 (defn print (& args)
-  (. (:: Kernel) (print (join args " "))))
+  (. Kernel (print (join args " "))))
 
 (defn println (& args)
   (apply print args)
   (print "\n"))
 
 (defn pr (& args)
-  (. (:: Kernel) (print (join (map (fn (arg) (. arg (inspect))) args) " "))))
+  (. Kernel (print (join (map (fn (arg) (. arg (inspect))) args) " "))))
 
 (defn prn (& args)
   (apply pr args)

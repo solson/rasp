@@ -47,6 +47,24 @@ module Rasp
     end
   end
 
+  def self.sym(name)
+    Runtime::Identifier.new(name)
+  end
+
+  def self.quote(form)
+    [QUOTE, form]
+  end
+
+  def self.list(*args)
+    [LIST, *args]
+  end
+  
+  LIST             = self.sym("list")
+  CONCAT           = self.sym("concat")
+  QUOTE            = self.sym("quote")
+  UNQUOTE          = self.sym("unquote")
+  UNQUOTE_SPLICING = self.sym("unquote-splicing")
+
   class Program < Treetop::Runtime::SyntaxNode
     def eval(scope)
       convert!

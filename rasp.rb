@@ -101,7 +101,7 @@ module Rasp
 
   class Symbol < Treetop::Runtime::SyntaxNode
     def eval
-      Runtime::Identifier.new(text_value)
+      Rasp.sym(text_value)
     end
   end
 
@@ -117,7 +117,7 @@ module Rasp
 
   class Vector < Treetop::Runtime::SyntaxNode
     def eval
-      [Runtime::Identifier.new("list"), *cells.map{|c| c.eval}]
+      Rasp.list(*cells.map{|c| c.eval})
     end
 
     def cells

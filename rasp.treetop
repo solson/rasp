@@ -60,6 +60,11 @@ grammar Rasp
   end
 
   rule whitespace
-    [,\t\n\v\f\r ] # commas are whitespace, like in Clojure
+    # commas are whitespace, like in Clojure
+    [,\t\n\v\f\r ] / comment
+  end
+
+  rule comment
+    ';' (!"\n" .)* "\n"?
   end
 end

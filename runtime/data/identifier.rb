@@ -11,7 +11,14 @@ module Rasp
       def to_s
         @name
       end
-      alias inspect to_s
+      
+      def inspect
+        "'" + @name
+      end
+
+      def ==(other)
+        other.is_a?(Identifier) && @name == other.name
+      end
 
       def eval(scope)
         scope[self]

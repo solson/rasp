@@ -1,16 +1,16 @@
 (def list (fn (& args) args))
 
+(defn map (f ary)
+  (.map ary & f))
+
+(defn concat (& args)
+  (.reduce args [] "+"))
+
 (def defmacro (macro (name args & forms)
 		     `(def ~name ~(apply macro args forms))))
 
-(defn map (f ary)
-  (. ary (map & f)))
-
-(defn concat (& args)
-  (. args (reduce [] "+")))
-
-(defn reduce (fn coll)
-  (. coll (reduce & fn)))
+(defn reduce (f ary)
+  (.reduce ary & f))
 
 (defmacro import (& classes)
   `(do ~@(map (fn (class)
@@ -19,30 +19,27 @@
 
 (import Kernel Object Module Class Range String Array)
 
-(defn require (name) (. Kernel (require name)))
+(defn require (name)
+  (.require Kernel name))
 
 (defmacro comment (& forms))
 
-(defn isa? (obj class)
-  (. obj (is_a? class)))
-
-(defn method (obj name)
-  (. obj (method name)))
-
-(defn new (class & args)
-  (apply (method class "new") args))
+(defmacro .. (obj form & more)
+  (if (.empty? more)
+    `(. ~obj ~form)
+    `(.. (. ~obj ~form) ~@more)))
 
 (defn range (min max)
-  (new Range min max))
+  (.new Range min max))
 
 (defmacro loop (& body)
-  `(. Kernel (loop & (fn () ~@body))))
+  `(.loop Kernel & (fn () ~@body)))
 
 (defn str (& args)
-  (join args ""))
+  (.join args))
 
 (defn not (x)
-  (. x (!@)))
+  (.!@ x))
 
 (defmacro when (condition & body)
   `(if ~condition (do ~@body) nil))
@@ -50,46 +47,27 @@
 (defmacro when-not (condition & body)
   `(if ~condition nil (do ~@body)))
 
-(defn join (ary sep)
-  (. ary (join sep)))
-
 (defn print (& args)
-  (. Kernel (print (join args " "))))
+  (.print Kernel (.join args " ")))
 
 (defn println (& args)
   (apply print args)
   (print "\n"))
 
 (defn pr (& args)
-  (. Kernel (print (join (map (fn (arg) (. arg (inspect))) args) " "))))
+  (apply print (map (fn (arg)
+                      (.inspect arg))
+                    args)))
 
 (defn prn (& args)
   (apply pr args)
   (print "\n"))
 
-(defn each (ary fn)
-  (. ary (each & fn)))
-
-(defn push (ary)
-  (. ary (push)))
-
-(defn first (ary)
-  (. ary (first)))
-
-(defn rest (ary)
-  (. ary (slice (range 1 -1))))
-
-(defn last (ary)
-  (. ary (last)))
-
-(defn pop (ary)
-  (. ary (pop)))
-
-(defn aconcat (ary1 ary2)
-  (. ary1 (concat ary2)))
+(defn each (f ary)
+  (.each ary & f))
 
 (defn + (& args)
-  (. args (reduce 0 "+")))
+  (.reduce args 0 "+"))
 
 (defn * (& args)
-  (. args (reduce 1 "*")))
+  (.reduce args 1 "*"))

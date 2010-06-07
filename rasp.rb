@@ -19,24 +19,14 @@ module Rasp
       p expression if $DEBUG
       return [] if expression.size == 0
 
-      if expression.first.is_a?(Runtime::Identifier) && expression.first.name[0,1] == "." && expression.first.name.length > 1
-        raise "Method call expression badly formed, expecting (.method object ...)" if expression.length < 2
-        expression = [DOT, expression[1], Rasp.sym(expression[0].name[1..-1]), *expression[2..-1]]
-        puts "Dot shift: #{expression.inspect}" if $DEBUG
-      end
+      expression = Rasp.macroexpand(expression, scope)
 
       callable = Rasp.evaluate(expression.first, scope)
       raise "Tried to call '#{callable}', but it has no 'call' method." unless callable.respond_to? :call
 
       args = expression[1..-1]
 
-#      scope.runtime.stack << callable.to_s
-
       case callable
-      when Runtime::Macro
-        expansion = callable.call(args)
-        puts "EXPANSION: #{expansion}" if $DEBUG
-        self.evaluate(expansion, scope)
       when Runtime::Special
         callable.call(scope, args)
       when Runtime::Function
@@ -44,12 +34,38 @@ module Rasp
       else
         callable.call(*args)
       end
-
-#      scope.runtime.stack.pop
     when Runtime::Expression
       expression.eval(scope)
     else
       expression
+    end
+  end
+
+  def self.macroexpand_1(form, scope)
+    return form unless form.is_a?(Array)
+
+    first = form.first
+
+    val = scope[first] rescue nil
+    if val.is_a? Runtime::Special
+      form
+    elsif val.is_a? Runtime::Macro
+      val.call(form[1..-1])
+    elsif first.is_a?(Runtime::Identifier) && first.name[0,1] == "."
+      raise "Method call expression badly formed, expecting (.method object ...)" if form.length < 2
+
+      [DOT, form[1], Rasp.sym(first.name[1..-1]), *form[2..-1]]
+    else
+      form
+    end
+  end
+
+  def self.macroexpand(form, scope)
+    exp = Rasp.macroexpand_1(form, scope)
+    if exp == form
+      form
+    else
+      Rasp.macroexpand(exp, scope)
     end
   end
 

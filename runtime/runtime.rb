@@ -160,11 +160,19 @@ module Rasp
       end
 
       scope.defspecial('apply') do |scope, params|
-        f = Rasp.evaluate(params[0], scope)
+        f = params[0]
         args = params[1..-1].map{|param| Rasp.evaluate(param, scope)}
         args += args.pop.to_a
 
         Rasp.evaluate([f, *args], scope)
+      end
+
+      scope.defspecial('macroexpand-1') do |scope, params|
+        Rasp.macroexpand_1(Rasp.evaluate(params.first, scope), scope)
+      end
+
+      scope.defspecial('macroexpand') do |scope, params|
+        Rasp.macroexpand(Rasp.evaluate(params.first, scope), scope)
       end
 
         # (def apply (fn (f & args)

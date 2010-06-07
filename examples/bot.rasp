@@ -1,25 +1,28 @@
 (require "socket")
 (import TCPSocket)
 
-(def *server* "irc.ninthbit.net")
+(def *server* "localhost")
 (def *port* 6667)
 (def *nick* "rasp-bot")
 (def *user* "rasp")
 (def *realname* "An IRC bot written in Rasp")
 (def *channels* ["#programming" "#offtopic"])
 
-(def *bot* (new TCPSocket *server* *port*))
+(def *bot* (.new TCPSocket *server* *port*))
 
 (defn send (socket & args)
-  (. socket (puts (join args ""))))
+  (println ">>>" (.join args))
+  (.puts socket (.join args)))
 
 (defn handle-line (line)
-  (send *bot* "PONG" (. line (slice (range 4 -1))))
-  (send *bot* "JOIN " (join *channels* ",")))
+  (println line)
+  (when (.start_with? line "PING")
+    (send *bot* "PONG" (.slice line (range 4 -1))))
+  (when (.. line split (at 1) (== "001"))
+    (send *bot* "JOIN " (.join *channels* ","))))
 
 (send *bot* "USER " *user* " * * :" *realname*)
 (send *bot* "NICK " *nick*)
-(send *bot* "JOIN " (join *channels* ","))
 
-(while (def line (. *bot* (gets)))
+(while (def line (.. *bot* gets chomp))
   (handle-line line))

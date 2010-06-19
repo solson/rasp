@@ -214,7 +214,7 @@ module Rasp
       if form.is_a?(Runtime::Identifier) && form.name.start_with?('%')
         s = form.name[1..-1]
         case s
-        when '' # handle % without a number
+        when '' # handle % without a number as %1
           @highest_arg = [1, @highest_arg].max
           gensym("p1")
         when '0'..'9'

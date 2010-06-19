@@ -46,6 +46,8 @@ module Rasp
 
     first = form.first
 
+    # rescue nil because scope will raise an exception if the var
+    # isn't found
     val = scope[first] rescue nil
     if val.is_a? Runtime::Special
       form

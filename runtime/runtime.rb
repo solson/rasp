@@ -1,12 +1,10 @@
 module Rasp
   class Runtime
-    attr_accessor :top_level, :user_scope, :stack
+    attr_accessor :top_level, :user_scope
 
     def initialize
-      @top_level = Scope.new(self)
+      @top_level  = Scope.new(self)
       @user_scope = Scope.new(@top_level)
-
-      @stack = []
 
       Runtime.define_builtins(@top_level)
     end
@@ -16,9 +14,9 @@ module Rasp
     end
 
     def self.define_builtins(scope)
-      scope['true'] = true
+      scope['true']  = true
       scope['false'] = false
-      scope['nil'] = nil
+      scope['nil']   = nil
 
       # This is the Ruby const_get function. Important for Ruby interop.
       scope.defspecial('::') do |scope, params|

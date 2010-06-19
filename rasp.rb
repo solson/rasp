@@ -69,6 +69,14 @@ module Rasp
     end
   end
 
+  def self.next_gensym_id
+    @@gensym_id ||= 1
+    
+    id = @@gensym_id
+    @@gensym_id += 1
+    id
+  end
+
   def self.sym(name)
     Runtime::Identifier.new(name)
   end
@@ -82,6 +90,7 @@ module Rasp
   end
 
   DOT              = self.sym(".")
+  FN               = self.sym("fn")
   LIST             = self.sym("list")
   CONCAT           = self.sym("concat")
   QUOTE            = self.sym("quote")
@@ -117,12 +126,24 @@ module Rasp
   end
 
   class BackquotedCell < Treetop::Runtime::SyntaxNode
+    def initialize(*args)
+      super
+      @gensyms = {}
+    end
+
+    def gensym(name)
+      @gensyms[name] ||= Rasp.sym(name + "__" + Rasp.next_gensym_id.to_s + "__auto__")
+    end
+    
     def eval
       syntax_quote(elements[1].eval)
     end
 
     def syntax_quote(form)      
       if form.is_a? Runtime::Identifier
+        if form.name.end_with? "#"
+          form = gensym(form.name[0..-2])
+        end
         Rasp.quote(form)
       elsif is_unquote?(form)
         form[1]

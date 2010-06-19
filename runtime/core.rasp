@@ -17,6 +17,13 @@
 		  `(def ~class (:: ~class)))
 	      classes)))
 
+;; import Rasp
+(import Rasp)
+
+(defn gensym (prefix)
+  (.sym Rasp (str (or prefix "G__") (.next_gensym_id Rasp))))
+
+;; import Ruby builtins
 (import Kernel Object Module Class Range String Array)
 
 (defn require (name)

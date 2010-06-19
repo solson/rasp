@@ -48,7 +48,7 @@ grammar Rasp
   end
 
   rule special
-    [!$%&*/:<=>?^_~+.@-]
+    [#!$%&*/:<=>?^_~+.@-]
   end
 
   rule letter

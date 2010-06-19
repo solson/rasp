@@ -62,9 +62,7 @@
   (print "\n"))
 
 (defn pr (& args)
-  (apply print (map (fn (arg)
-                      (.inspect arg))
-                    args)))
+  (apply print (map #(.inspect %) args)))
 
 (defn prn (& args)
   (apply pr args)

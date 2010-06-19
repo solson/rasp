@@ -30,6 +30,10 @@ module Rasp
         context.const_get(name.to_s)
       end
 
+      scope.defspecial('current-scope') do |scope, params|
+        scope
+      end
+
       # This is the Ruby 'send' function. Very important for Ruby
       # interop.
       #

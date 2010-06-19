@@ -4,7 +4,7 @@ grammar Rasp
   end
 
   rule cell
-    whitespace* (quotes / number / string / symbol / list / vector) whitespace* <Cell>
+    whitespace* (quotes / anonymous_func / number / string / symbol / list / vector) whitespace* <Cell>
   end
 
   rule quotes
@@ -25,6 +25,10 @@ grammar Rasp
 
   rule unquoted_splicing_cell
     "~@" cell <UnquotedSplicingCell>
+  end
+
+  rule anonymous_func
+    "#" list <AnonymousFunc>
   end
 
   rule number

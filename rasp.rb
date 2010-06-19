@@ -92,6 +92,7 @@ module Rasp
   end
 
   DOT              = self.sym(".")
+  AMP              = self.sym("&")
   FN               = self.sym("fn")
   LIST             = self.sym("list")
   CONCAT           = self.sym("concat")
@@ -188,6 +189,60 @@ module Rasp
   class UnquotedSplicingCell < Treetop::Runtime::SyntaxNode
     def eval
       [UNQUOTE_SPLICING, elements[1].eval]
+    end
+  end
+
+  class AnonymousFunc < Treetop::Runtime::SyntaxNode
+    def initialize(*args)
+      super
+      @gensyms = {}
+      @highest_arg = 0
+      @rest_arg = false
+    end
+
+    def gensym(name)
+      @gensyms[name] ||= Rasp.sym(name + "__" + Rasp.next_gensym_id.to_s)
+    end
+    
+    def eval
+      translated_body = translate_argument(body)
+      [FN, create_arg_list, translated_body]
+    end
+
+    # change %n arguments to real gensym-named arguments
+    def translate_argument(form)
+      if form.is_a?(Runtime::Identifier) && form.name.start_with?('%')
+        s = form.name[1..-1]
+        case s
+        when '' # handle % without a number
+          @highest_arg = [1, @highest_arg].max
+          gensym("p1")
+        when '0'..'9'
+          @highest_arg = [s.to_i, @highest_arg].max
+          gensym("p#{s}")
+        when '&'
+          @rest_arg = true
+          gensym("rest")
+        else
+          raise "Arg literal '#{form.name}' is bad. Must be %, %&, or %integer."
+        end
+      elsif form.is_a?(Array)
+        form.map{|f| translate_argument(f) }
+      else
+        form
+      end
+    end
+
+    def create_arg_list
+      arg_list = (1..@highest_arg).map do |arg|
+        gensym("p#{arg}")
+      end
+      arg_list << AMP << gensym("rest") if @rest_arg
+      arg_list
+    end
+
+    def body
+      elements[1].eval
     end
   end
 

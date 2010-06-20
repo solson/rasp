@@ -177,6 +177,24 @@ module Rasp
         Rasp.macroexpand(Rasp.evaluate(params.first, scope), scope)
       end
 
+      scope.defspecial('let') do |scope, params|
+        bindings = params[0]
+        raise 'Bad binding form, expected list.' unless bindings.is_a? Array
+        raise 'Bad binding form, should have an even number of elements.' unless bindings.count.even?
+        
+        let_scope = Scope.new(scope)
+        bindings.each_slice(2) do |name, value|
+          raise "Bad binding form, expected identifier, got: #{name}" unless name.is_a? Runtime::Identifier
+          let_scope[name] = Rasp.evaluate(value, let_scope)
+        end
+
+        ret = nil
+        params[1..-1].each do |form|
+          ret = Rasp.evaluate(form, let_scope)
+        end
+        ret
+      end
+
         # (def apply (fn (f & args)
         #   (. args (concat (. (. args (pop)) (to_a))))
         #   (eval (. [f] (+ args)))))

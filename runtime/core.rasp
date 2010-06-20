@@ -45,6 +45,12 @@
 (defn str (& args)
   (.join args))
 
+(defn slice (seq start end)
+  (.slice seq (range start (or end -1))))
+
+(defn = (& args)
+  (.all? args & #(.== (.first args) %)))
+
 (defn not (x)
   (.!@ x))
 

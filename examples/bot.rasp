@@ -6,7 +6,7 @@
 (def *nick* "rasp-bot")
 (def *user* "rasp")
 (def *realname* "An IRC bot written in Rasp")
-(def *channels* ["#programming" "#offtopic"])
+(def *channels* ["#programming"])
 
 (def *bot* (.new TCPSocket *server* *port*))
 

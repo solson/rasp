@@ -14,7 +14,7 @@
 
 (defmacro import (& classes)
   `(do ~@(map (fn (class)
-		  `(def ~class (:: ~class)))
+		  `(def ~class (const-get ~class)))
 	      classes)))
 
 ;; import Rasp

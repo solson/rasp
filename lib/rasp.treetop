@@ -4,7 +4,7 @@ grammar Rasp
   end
 
   rule cell
-    whitespace* (quotes / anonymous_func / number / string / symbol / list / vector) whitespace* <Cell>
+    whitespace* (quotes / anonymous_func / number / string / keyword / symbol / list / vector) whitespace* <Cell>
   end
 
   rule quotes
@@ -34,6 +34,10 @@ grammar Rasp
   rule number
     '-'? digit+ <Number>
   end
+  
+  rule keyword
+    ':' (special / letter / number)+ <Keyword>
+  end
 
   rule symbol
     (special / letter) (special / letter / number)* <Symbol>
@@ -52,7 +56,7 @@ grammar Rasp
   end
 
   rule special
-    [#!$%&*/:<=>?^_~+.@-]
+    [#!$%&*/<=>?^_~+.@-]
   end
 
   rule letter

@@ -252,6 +252,12 @@ module Rasp
     end
   end
 
+  class Keyword < Treetop::Runtime::SyntaxNode
+    def eval
+      elements[1].text_value.intern
+    end
+  end
+
   class Symbol < Treetop::Runtime::SyntaxNode
     def eval
       Rasp.sym(text_value)

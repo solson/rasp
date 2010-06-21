@@ -19,7 +19,7 @@ module Rasp
       scope['nil']   = nil
 
       # This is the Ruby const_get function. Important for Ruby interop.
-      scope.defspecial('::') do |scope, params|
+      scope.defspecial('const-get') do |scope, params|
         if name = params[1]
           context = Rasp.evaluate(params[0], scope)
         else

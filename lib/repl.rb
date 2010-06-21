@@ -40,11 +40,11 @@ module Rasp
           line = readline_with_history
           break unless line
           p @runtime.user_scope.eval(line)
-        rescue => e
-          @error = e
-          puts "#{e.class}: #{e.message} - see (backtrace)"
         rescue Interrupt
           puts
+        rescue Exception => e
+          @error = e
+          puts "#{e.class}: #{e.message} - see (backtrace)"
         end
       end
       puts # Add a newline after C-d

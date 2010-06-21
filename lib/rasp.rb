@@ -32,7 +32,7 @@ module Rasp
       when Runtime::Function
         callable.call(args.map{|arg| Rasp.evaluate(arg, scope)})
       else
-        callable.call(*args)
+        callable.call(*args.map{|arg| Rasp.evaluate(arg, scope)})
       end
     when Runtime::Expression
       expression.eval(scope)

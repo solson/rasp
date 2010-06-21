@@ -10,21 +10,39 @@ module Rasp
 
     def initialize(runtime = Runtime.new)
       @runtime = runtime
+      @runtime.user_scope.defn('backtrace') do
+        if @error.is_a?(Exception)
+          puts @error.backtrace
+        else
+          puts "No errors have occurred yet."
+        end
+      end
     end
 
     def repl
+      # Append spaces after tab completion
+      Readline.completion_append_character = " "
+      
+      # Tab completion function
+      Readline.completion_proc = proc do |s|
+        @runtime.user_scope.keys.sort.grep(/^#{Regexp.escape(s)}/)
+      end
+      
       # Load the history
       load_history
+      
       # Store the state of the terminal
       stty_save = `stty -g`.chomp
-      
+
+      # Read-Eval-Print Loop
       loop do
         begin
-          line = readline_history
+          line = readline_with_history
           break unless line
-          p @runtime.eval(line)
-        rescue RuntimeError => e
-          puts 'Error: ' + e.message
+          p @runtime.user_scope.eval(line)
+        rescue => e
+          @error = e
+          puts "#{e.class}: #{e.message} - see (backtrace)"
         rescue Interrupt
           puts
         end
@@ -60,7 +78,7 @@ module Rasp
     #   2. Quick Break on nil
     #   3. Remove from history if empty or dup
     #
-    def readline_history
+    def readline_with_history
       line = Readline.readline('Rasp> ', true)
       return nil if line.nil?
       if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line

@@ -32,6 +32,10 @@ module Rasp
         value
       end
 
+      def keys
+        @symbols.keys + @parent.keys
+      end
+
       def defn(name, *args, &block)
         self[name] = Function.new(self, *args, &block)
       end

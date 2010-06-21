@@ -3,7 +3,7 @@ module Rasp
     class Scope
       attr_accessor :runtime
 
-      def initialize(parent = {})
+      def initialize(parent)
         @symbols = {}
         if parent.is_a? Runtime
           @parent = {}

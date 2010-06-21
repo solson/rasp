@@ -104,7 +104,7 @@ module Rasp
     def eval(scope)
       convert!
       p @data if $DEBUG
-      @data.map{|part| Rasp.evaluate(part, scope)}.last
+      @data.map{|part| Rasp.evaluate(part, scope)}
     end
 
     def convert!

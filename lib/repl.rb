@@ -39,7 +39,7 @@ module Rasp
         begin
           line = readline_with_history
           break unless line
-          p @runtime.user_scope.eval(line)
+          @runtime.user_scope.eval(line).each{|val| p val }
         rescue Interrupt
           puts
         rescue Exception => e

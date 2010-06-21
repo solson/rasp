@@ -25,7 +25,11 @@
 
 ;; import Ruby builtins
 (import Kernel Object Module Class Range String Array Hash Regexp)
-(import Numeric Integer Fixnum Bignum Float)
+(import Math Numeric Integer Fixnum Bignum Float Rational Complex)
+
+(def pi (const-get Math PI))
+
+(def e (const-get Math E))
 
 (defn require (name)
   (.require Kernel name))

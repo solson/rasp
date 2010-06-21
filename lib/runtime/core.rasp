@@ -4,7 +4,7 @@
   (.map ary @ f))
 
 (defn concat (& args)
-  (.reduce args [] "+"))
+  (.reduce args [] :+))
 
 (def defmacro (macro (name args & forms)
 		     `(def ~name ~(apply macro args forms))))
@@ -82,22 +82,20 @@
 (defn each (f ary)
   (.each ary @ f))
 
-(defn rational (numerator denominator)
-  (.Rational Kernel numerator denominator))
+(def rational (.method Kernel :Rational))
 
-(defn complex (real imaginary)
-  (.Complex Kernel real imaginary))
+(def complex (.method Kernel :Complex))
 
 (defn + (& args)
-  (.reduce args 0 "+"))
+  (.reduce args 0 :+))
 
 (defn * (& args)
-  (.reduce args 1 "*"))
+  (.reduce args 1 :*))
 
 (defn - (x & rest)
   (if (.empty? rest)
     (.-@ x)
-    (.reduce rest x "-")))
+    (.reduce rest x :-)))
 
 (defn / (x & rest)
   (if (.empty? rest)
@@ -105,4 +103,4 @@
     (.reduce rest (if (.is_a? x Float)
 		    x
 		    (rational x 1))
-	     "/")))
+	     :/)))

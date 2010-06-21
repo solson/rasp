@@ -60,9 +60,15 @@ module Rasp
         
         block = nil
 
-        if i = args.find_index{|arg| arg.to_s == '&' }
+        if i = args.find_index{|arg| ['@','@@'].include?(arg.to_s) }
+          found = args[i]
           block = Rasp.evaluate(args[i + 1], scope)
           args = args[0...i]
+
+          if found.to_s == '@@'
+            old_block = block
+            block = lambda{|*args| old_block.call([self, *args])}
+          end
         end
 
         args.map!{|arg| Rasp.evaluate(arg, scope)}

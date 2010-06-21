@@ -1,7 +1,7 @@
 (def list (fn (& args) args))
 
 (defn map (f ary)
-  (.map ary & f))
+  (.map ary @ f))
 
 (defn concat (& args)
   (.reduce args [] "+"))
@@ -10,7 +10,7 @@
 		     `(def ~name ~(apply macro args forms))))
 
 (defn reduce (f ary)
-  (.reduce ary & f))
+  (.reduce ary @ f))
 
 (defmacro import (& classes)
   `(do ~@(map (fn (class)
@@ -41,7 +41,7 @@
   (.new Range min max))
 
 (defmacro loop (& body)
-  `(.loop Kernel & (fn () ~@body)))
+  `(.loop Kernel @ (fn () ~@body)))
 
 (defn str (& args)
   (.join args))
@@ -50,7 +50,7 @@
   (.slice seq (range start (or end -1))))
 
 (defn = (& args)
-  (.all? args & #(.== (.first args) %)))
+  (.all? args @ #(.== (.first args) %)))
 
 (defn not (x)
   (.!@ x))
@@ -76,7 +76,13 @@
   (print "\n"))
 
 (defn each (f ary)
-  (.each ary & f))
+  (.each ary @ f))
+
+(defn rational (numerator denominator)
+  (.Rational Kernel numerator denominator))
+
+(defn complex (real imaginary)
+  (.Complex Kernel real imaginary))
 
 (defn + (& args)
   (.reduce args 0 "+"))
@@ -88,9 +94,6 @@
   (if (.empty? rest)
     (.-@ x)
     (.reduce rest x "-")))
-
-(defn rational (numerator denominator)
-  (.Rational Kernel numerator denominator))
 
 (defn / (x & rest)
   (if (.empty? rest)

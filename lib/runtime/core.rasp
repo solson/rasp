@@ -57,7 +57,7 @@
   (.all? args @ #(.== (.first args) %)))
 
 (defn not (x)
-  (.!@ x))
+  (.! x))
 
 (defmacro when (condition & body)
   `(if ~condition (do ~@body) nil))

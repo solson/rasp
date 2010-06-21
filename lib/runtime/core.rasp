@@ -24,7 +24,8 @@
   (.sym Rasp (str (or prefix "G__") (.next_gensym_id Rasp))))
 
 ;; import Ruby builtins
-(import Kernel Object Module Class Range String Array)
+(import Kernel Object Module Class Range String Array Hash Regexp)
+(import Numeric Integer Fixnum Bignum Float)
 
 (defn require (name)
   (.require Kernel name))
@@ -82,3 +83,19 @@
 
 (defn * (& args)
   (.reduce args 1 "*"))
+
+(defn - (x & rest)
+  (if (.empty? rest)
+    (.-@ x)
+    (.reduce rest x "-")))
+
+(defn rational (numerator denominator)
+  (.Rational Kernel numerator denominator))
+
+(defn / (x & rest)
+  (if (.empty? rest)
+    (./ (rational 1 1) x)
+    (.reduce rest (if (.is_a? x Float)
+		    x
+		    (rational x 1))
+	     "/")))

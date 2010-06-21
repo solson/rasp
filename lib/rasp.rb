@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'treetop'
 
-Treetop.load 'rasp.treetop'
+Treetop.load(File.join(File.dirname(__FILE__), 'rasp.treetop'))
 
 %w[runtime scope data/expression data/identifier callable/function callable/special callable/macro].each do |file|
   require File.join(File.dirname(__FILE__), 'runtime', file)
@@ -283,10 +283,4 @@ module Rasp
       Kernel.eval(text_value)
     end
   end
-end
-
-if $0 == __FILE__
-  runtime = Rasp::Runtime.new
-  tree = Rasp.parse(ARGF.read)
-  value = tree.eval(runtime.user_scope)
 end

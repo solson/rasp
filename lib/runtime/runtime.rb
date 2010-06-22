@@ -13,6 +13,12 @@ module Rasp
       @user_scope.eval(code)
     end
 
+    # Top level scopes have Runtimes as parents, so they will call
+    # this method on Runtime.
+    def find_scope_with(name)
+      nil
+    end
+
     def self.define_builtins(scope)
       scope['true']  = true
       scope['false'] = false

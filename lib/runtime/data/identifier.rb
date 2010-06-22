@@ -5,7 +5,7 @@ module Rasp
       attr_accessor :name
 
       def initialize(name)
-        @name = name
+        @name = name.to_s
       end
 
       def to_s
@@ -21,7 +21,7 @@ module Rasp
       end
 
       def eval(scope)
-        scope[self]
+        scope[@name]
       end
     end
   end

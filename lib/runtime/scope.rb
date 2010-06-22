@@ -1,34 +1,48 @@
 module Rasp
   class Runtime
     class Scope
-      attr_accessor :runtime
+      attr_accessor :symbols
 
       def initialize(parent)
         @symbols = {}
-        if parent.is_a? Runtime
-          @parent = {}
-          @runtime = parent
-        else
-          @parent = parent
-          @runtime = parent.runtime
-        end
+        @parent = parent
+      end
+
+      def include?(name)
+        @symbols.include?(name) || @parent.include?(name)
+      end
+
+      def find_scope_with(name)
+        return self if @symbols.include?(name)
+        @parent.find_scope_with(name)
       end
 
       def [](name)
         name = name.to_s
-
-        if @symbols.include?(name)
-          @symbols[name].tap{|x| puts "#{name}: #{x.inspect}" if $DEBUG}
-        elsif @parent.is_a?(Scope)
-          @parent[name]
+        scope = find_scope_with(name)
+        if scope
+          scope.symbols[name]
         else
           raise "Unable to resolve symbol '#{name}'."
         end
       end
 
+      # def [](name)
+      #   name = name.to_s
+
+      #   if @symbols.include?(name)
+      #     @symbols[name]
+      #   elsif @parent.is_a?(Scope)
+      #     @parent[name]
+      #   else
+      #     raise "Unable to resolve symbol '#{name}'."
+      #   end
+      # end
+
       def []=(name, value)
-        @symbols[name.to_s] = value
-        value.name = name if value.is_a? Function
+        name = name.to_s
+        @symbols[name] = value
+        value.name ||= name if value.is_a? Function
         value
       end
 

@@ -86,12 +86,6 @@ module Rasp
         params[0]
       end
 
-      scope.defspecial('debug') do |scope, params|
-        print "DEBUG: " if $DEBUG
-        require 'pp'
-        pp [scope, params] if $DEBUG
-      end
-
       scope.defspecial('eval') do |scope, params|
         Rasp.evaluate(Rasp.evaluate(params[0], scope), scope)
       end

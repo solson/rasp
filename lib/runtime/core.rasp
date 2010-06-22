@@ -41,8 +41,7 @@
     `(. ~obj ~form)
     `(.. (. ~obj ~form) ~@more)))
 
-(defn range (min max)
-  (.new Range min max))
+(def range (.method Range :new))
 
 (defmacro loop (& body)
   `(.loop Kernel @ (fn () ~@body)))

@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'treetop'
 
-Treetop.load(File.join(File.dirname(__FILE__), 'rasp.treetop'))
+#Treetop.load(File.join(File.dirname(__FILE__), 'rasp.treetop'))
+require(File.join(File.dirname(__FILE__), 'parser'))
 
 %w[runtime scope data/expression data/identifier callable/function callable/special callable/macro].each do |file|
   require File.join(File.dirname(__FILE__), 'runtime', file)
